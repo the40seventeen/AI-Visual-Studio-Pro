@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="robots" content="noindex,nofollow">
+<title>AI Visual Studio Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Albert+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ====== RESET & TOKENS ====== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --white:#ffffff;
+  --black:#000000;
+  --gray-50:#fafafa;
+  --gray-100:#f0f0f0;
+  --gray-200:#dbdbdb;
+  --gray-300:#c7c7c7;
+  --gray-400:#8e8e8e;
+  --gray-500:#737373;
+  --gray-600:#555555;
+  --gray-800:#262626;
+  --gray-900:#141414;
+  --ig-blue:#0095f6;
+  --ig-blue-h:#1877f2;
+  --ig-red:#ed4956;
+  --ig-green:#44c654;
+  --ig-gold:#FFCB2F;
+  --grad-story: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);
+  --grad-btn: linear-gradient(45deg,#833ab4,#fd1d1d,#fcb045);
+  --radius-sm:8px;
+  --radius-md:12px;
+  --radius-lg:16px;
+  --radius-xl:24px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:0 4px 16px rgba(0,0,0,.12);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.18);
+  --nav-h:60px;
+  --bottom-h:50px;
+}
+html{height:100%;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'Albert Sans',sans-serif;
+  font-size:14px;
+  background:var(--gray-50);
+  color:var(--gray-800);
+  min-height:100%;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;outline:none}
+input{font-family:inherit;outline:none}
+a{text-decoration:none;color:inherit}
+
+/* ====== ANTI-INSPECT ====== */
+body.devtools-open #app-shell{filter:blur(8px) brightness(.3);pointer-events:none}
+body.devtools-open::after{
+  content:'🔒 Developer tools detected. Access suspended.';
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;font-weight:600;color:#fff;background:rgba(0,0,0,.85);
+  z-index:99999;text-align:center;padding:2rem;
+}
+
+/* ====== SPLASH / AUTH SCREEN ====== */
+#auth-screen{
+  position:fixed;inset:0;z-index:1000;
+  background:var(--white);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem 1.5rem;
+  animation:fadeIn .4s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.auth-logo{
+  font-family:'Playfair Display',serif;
+  font-size:2.8rem;
+  font-weight:900;
+  letter-spacing:-1.5px;
+  background:var(--grad-btn);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:.3rem;
+}
+.auth-tagline{color:var(--gray-400);font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2.5rem}
+
+.auth-card{width:100%;max-width:360px;display:flex;flex-direction:column;gap:.9rem}
+
+.auth-divider{
+  display:flex;align-items:center;gap:.8rem;color:var(--gray-400);font-size:.78rem;font-weight:600;letter-spacing:.08em;
+}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--gray-200)}
+
+.auth-input{
+  width:100%;
+  background:var(--gray-50);
+  border:1.5px solid var(--gray-200);
+  border-radius:var(--radius-sm);
+  padding:.85rem 1rem;
+  font-size:.9rem;
+  color:var(--gray-800);
+  transition:border-color .2s,background .2s;
+  letter-spacing:.04em;
+}
+.auth-input:focus{border-color:#a0a0a0;background:var(--white)}
+.auth-input::placeholder{color:var(--gray-400);font-size:.83rem}
+
+.auth-btn{
+  width:100%;
+  background:var(--grad-btn);
+  color:var(--white);
+  font-size:.9rem;
+  font-weight:600;
+  border-radius:var(--radius-sm);
+  padding:.85rem;
+  transition:opacity .2s,transform .15s;
+  letter-spacing:.01em;
+}
+.auth-btn:hover{opacity:.92}
+.auth-btn:active{transform:scale(.98)}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.auth-error{
+  background:#fef0f1;border:1.5px solid #f5c6cb;
+  border-radius:var(--radius-sm);padding:.7rem 1rem;
+  color:var(--ig-red);font-size:.8rem;line-height:1.5;
+  display:none;
+}
+.auth-error.show{display:block}
+
+.auth-success{
+  background:#f0fdf4;border:1.5px solid #bbf7d0;
+  border-radius:var(--radius-sm);padding:.7rem 1rem;
+  color:#166534;font-size:.8rem;line-height:1.5;
+  display:none;
+}
+.auth-success.show{display:block}
+
+.auth-note{text-align:center;color:var(--gray-400);font-size:.77rem;line-height:1.5}
+.auth-note a{color:var(--ig-blue);font-weight:500}
+
+.auth-spinner{
+  display:inline-block;width:16px;height:16px;
+  border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+  border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:.4rem;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ====== MAIN APP SHELL ====== */
+#app-shell{display:none;min-height:100vh}
+
+/* ====== TOP NAV (Instagram-style) ====== */
+.top-nav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--gray-200);
+  height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1rem;
+}
+.nav-logo{
+  font-family:'Playfair Display',serif;
+  font-size:1.6rem;font-weight:900;letter-spacing:-1px;
+  background:var(--grad-btn);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;
+}
+.nav-icons{display:flex;gap:.2rem}
+.nav-icon-btn{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;font-size:1.15rem;
+}
+.nav-icon-btn:hover{background:var(--gray-100)}
+.nav-icon-btn.active-tab{position:relative}
+.nav-icon-btn.active-tab::after{
+  content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
+  width:4px;height:4px;border-radius:50%;background:var(--gray-800);
+}
+
+/* ====== BOTTOM TAB BAR ====== */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:rgba(255,255,255,.97);
+  backdrop-filter:blur(12px);
+  border-top:1px solid var(--gray-200);
+  height:var(--bottom-h);
+  display:flex;align-items:center;
+}
+.bottom-tab{
+  flex:1;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;color:var(--gray-400);
+  transition:color .15s;font-size:.55rem;font-weight:500;letter-spacing:.05em;
+}
+.bottom-tab.active{color:var(--gray-900)}
+.bottom-tab svg{width:22px;height:22px;stroke-width:1.5}
+.bottom-tab.active svg{stroke-width:2.5}
+
+/* ====== STORIES ROW ====== */
+.stories-row{
+  display:flex;gap:.8rem;padding:1rem 1rem .8rem;
+  overflow-x:auto;scrollbar-width:none;
+}
+.stories-row::-webkit-scrollbar{display:none}
+.story-item{
+  display:flex;flex-direction:column;align-items:center;gap:.35rem;
+  cursor:pointer;flex-shrink:0;
+}
+.story-ring{
+  width:64px;height:64px;border-radius:50%;
+  padding:2.5px;background:var(--grad-story);
+  transition:transform .15s;
+}
+.story-ring:hover{transform:scale(1.05)}
+.story-ring.seen{background:var(--gray-300)}
+.story-avatar{
+  width:100%;height:100%;border-radius:50%;
+  border:2.5px solid var(--white);
+  background:var(--gray-100);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;overflow:hidden;
+}
+.story-label{font-size:.68rem;color:var(--gray-800);font-weight:500;max-width:64px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ====== FEED / POSTS ====== */
+.feed{padding-bottom:calc(var(--bottom-h) + 1rem)}
+
+.post-card{
+  background:var(--white);
+  border-bottom:1px solid var(--gray-200);
+  margin-bottom:0;
+}
+
+.post-header{
+  display:flex;align-items:center;gap:.7rem;
+  padding:.75rem 1rem;
+}
+.post-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--gray-200);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;flex-shrink:0;
+}
+.post-user{font-weight:600;font-size:.87rem}
+.post-category{color:var(--gray-400);font-size:.78rem;margin-top:.1rem}
+.post-more{margin-left:auto;color:var(--gray-800);font-size:1.3rem;padding:.3rem}
+
+.post-media{
+  width:100%;aspect-ratio:1/1;
+  background:linear-gradient(135deg,var(--gray-100),var(--gray-200));
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;
+  position:relative;overflow:hidden;
+  cursor:pointer;
+}
+.post-media-gradient{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:.5rem;
+}
+.post-media-label{
+  font-family:'Playfair Display',serif;
+  font-size:1.2rem;font-weight:700;
+  color:var(--white);text-align:center;padding:0 1.5rem;
+  text-shadow:0 2px 8px rgba(0,0,0,.3);
+  line-height:1.3;
+}
+.post-media-sub{
+  font-size:.75rem;color:rgba(255,255,255,.8);
+  background:rgba(0,0,0,.25);border-radius:20px;
+  padding:.25rem .75rem;backdrop-filter:blur(4px);
+}
+
+.post-actions{display:flex;align-items:center;gap:.3rem;padding:.6rem 1rem .3rem}
+.post-action-btn{
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;transition:transform .1s;font-size:1.2rem;
+}
+.post-action-btn:active{transform:scale(.85)}
+.post-action-btn.liked{animation:heartPop .3s ease}
+@keyframes heartPop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+.post-save-btn{margin-left:auto}
+
+.post-likes{padding:0 1rem;font-size:.87rem;font-weight:600}
+.post-caption{padding:.2rem 1rem .7rem;font-size:.87rem;line-height:1.5}
+.post-caption strong{font-weight:600}
+.post-caption .tag{color:var(--ig-blue)}
+
+/* ====== PROMPT BUILDER MODAL ====== */
+.modal-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(4px);
+  display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;
+  transition:opacity .25s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{
+  width:100%;max-height:92vh;
+  background:var(--white);
+  border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  display:flex;flex-direction:column;
+  transform:translateY(100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{
+  width:40px;height:4px;border-radius:2px;background:var(--gray-300);
+  margin:.75rem auto .25rem;flex-shrink:0;
+}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.7rem 1.2rem 1rem;flex-shrink:0;
+}
+.modal-title{font-size:1rem;font-weight:700;letter-spacing:-.01em}
+.modal-close{
+  width:32px;height:32px;border-radius:50%;background:var(--gray-100);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;color:var(--gray-800);
+}
+.modal-body{flex:1;overflow-y:auto;padding:0 1.2rem 1.2rem;-webkit-overflow-scrolling:touch}
+.modal-body::-webkit-scrollbar{display:none}
+
+/* ====== PROMPT OUTPUT IN MODAL ====== */
+.prompt-output-box{
+  background:var(--gray-50);
+  border:1.5px solid var(--gray-200);
+  border-radius:var(--radius-md);
+  padding:1rem;
+  min-height:80px;
+  font-size:.88rem;
+  line-height:1.6;
+  color:var(--gray-800);
+  margin-bottom:1rem;
+  position:relative;
+}
+.prompt-output-box.empty{color:var(--gray-400);font-style:italic}
+.prompt-char-count{
+  position:absolute;bottom:.5rem;right:.7rem;
+  font-size:.72rem;color:var(--gray-400);
+}
+
+.selected-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem}
+.chip{
+  display:inline-flex;align-items:center;gap:.3rem;
+  padding:.3rem .65rem;border-radius:20px;
+  font-size:.73rem;font-weight:500;
+  cursor:pointer;transition:opacity .15s;
+  border:1.5px solid transparent;
+}
+.chip:hover{opacity:.75}
+.chip-x{font-size:.85rem;opacity:.7}
+
+.modal-actions{display:flex;gap:.6rem;margin-bottom:1.2rem}
+.modal-btn{
+  flex:1;padding:.7rem;border-radius:var(--radius-sm);
+  font-size:.83rem;font-weight:600;transition:all .15s;
+}
+.modal-btn-primary{
+  background:var(--grad-btn);color:var(--white);
+}
+.modal-btn-primary:hover{opacity:.9}
+.modal-btn-secondary{
+  background:var(--gray-100);color:var(--gray-800);
+  border:1.5px solid var(--gray-200);
+}
+.modal-btn-secondary:hover{background:var(--gray-200)}
+
+/* ====== CATEGORY SECTION ====== */
+.cat-section{margin-bottom:1.4rem}
+.cat-section-header{
+  display:flex;align-items:center;gap:.5rem;
+  margin-bottom:.65rem;
+}
+.cat-section-icon{font-size:1rem}
+.cat-section-title{font-size:.88rem;font-weight:700;letter-spacing:-.01em}
+.cat-section-count{
+  margin-left:auto;font-size:.72rem;color:var(--gray-400);
+  background:var(--gray-100);padding:.15rem .5rem;border-radius:10px;
+}
+
+.cat-items-scroll{
+  display:flex;gap:.45rem;overflow-x:auto;scrollbar-width:none;padding-bottom:.2rem;
+}
+.cat-items-scroll::-webkit-scrollbar{display:none}
+
+.item-pill{
+  display:inline-block;white-space:nowrap;
+  padding:.4rem .85rem;
+  border-radius:20px;
+  font-size:.78rem;font-weight:500;
+  border:1.5px solid var(--gray-200);
+  background:var(--white);
+  color:var(--gray-700);
+  cursor:pointer;flex-shrink:0;
+  transition:all .15s;user-select:none;
+}
+.item-pill:hover{border-color:var(--gray-400);background:var(--gray-50)}
+.item-pill.sel{
+  border-color:var(--item-color,#000);
+  background:var(--item-bg,rgba(0,0,0,.06));
+  color:var(--item-color,#000);
+  font-weight:600;
+}
+
+/* ====== RANDOM TAB ====== */
+#tab-random{display:none;padding-bottom:calc(var(--bottom-h) + 1rem)}
+.random-hero{
+  margin:1rem;
+  border-radius:var(--radius-lg);
+  padding:2rem 1.5rem;
+  background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);
+  color:var(--white);text-align:center;
+}
+.random-hero h2{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;margin-bottom:.4rem}
+.random-hero p{font-size:.82rem;opacity:.85;line-height:1.5;margin-bottom:1.2rem}
+.btn-generate-random{
+  background:rgba(255,255,255,.2);
+  border:2px solid rgba(255,255,255,.5);
+  color:var(--white);
+  font-size:.9rem;font-weight:700;
+  padding:.75rem 2rem;border-radius:var(--radius-xl);
+  backdrop-filter:blur(8px);
+  transition:all .2s;
+}
+.btn-generate-random:hover{background:rgba(255,255,255,.3);transform:scale(1.03)}
+
+.formula-pills{display:flex;gap:.5rem;overflow-x:auto;padding:.2rem 1rem .8rem;scrollbar-width:none}
+.formula-pills::-webkit-scrollbar{display:none}
+.formula-pill{
+  white-space:nowrap;padding:.45rem 1rem;border-radius:20px;
+  font-size:.8rem;font-weight:600;
+  background:var(--gray-100);color:var(--gray-600);
+  border:1.5px solid var(--gray-200);transition:all .15s;flex-shrink:0;
+}
+.formula-pill.active{background:var(--gray-900);color:var(--white);border-color:var(--gray-900)}
+
+.random-result-card{
+  margin:0 1rem 1rem;
+  background:var(--white);
+  border:1.5px solid var(--gray-200);
+  border-radius:var(--radius-lg);
+  padding:1.2rem;
+  display:none;
+}
+.random-result-card.show{display:block}
+.random-result-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);margin-bottom:.7rem}
+.random-result-text{
+  font-family:'Playfair Display',serif;
+  font-size:1rem;line-height:1.6;color:var(--gray-800);margin-bottom:.9rem;
+}
+.random-result-parts{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1rem}
+.random-result-actions{display:flex;gap:.5rem}
+
+/* ====== EXPLORE / SAVED TAB ====== */
+#tab-explore{display:none;padding-bottom:calc(var(--bottom-h) + 1rem)}
+#tab-saved{display:none;padding-bottom:calc(var(--bottom-h) + 1rem)}
+
+.search-bar-wrap{padding:.8rem 1rem}
+.search-bar-inner{
+  background:var(--gray-100);border-radius:var(--radius-sm);
+  display:flex;align-items:center;gap:.5rem;padding:.6rem .9rem;
+}
+.search-bar-inner input{
+  background:transparent;border:none;width:100%;
+  font-size:.88rem;color:var(--gray-800);
+}
+.search-bar-inner input::placeholder{color:var(--gray-400)}
+
+.explore-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+}
+.explore-cell{
+  aspect-ratio:1/1;overflow:hidden;cursor:pointer;position:relative;
+}
+.explore-cell-inner{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;
+  transition:transform .2s;
+}
+.explore-cell:hover .explore-cell-inner{transform:scale(1.05)}
+.explore-cell-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.3);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .2s;
+  font-size:.7rem;color:#fff;font-weight:600;text-align:center;padding:.4rem;
+  line-height:1.3;
+}
+.explore-cell:hover .explore-cell-overlay{opacity:1}
+
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;
+  padding:4rem 2rem;gap:.8rem;color:var(--gray-400);text-align:center;
+}
+.empty-state-icon{font-size:2.5rem}
+.empty-state h3{font-size:.95rem;font-weight:600;color:var(--gray-600)}
+.empty-state p{font-size:.82rem;line-height:1.5}
+
+/* ====== PROFILE TAB ====== */
+#tab-profile{display:none;padding-bottom:calc(var(--bottom-h) + 1rem)}
+.profile-header{
+  background:var(--white);border-bottom:1px solid var(--gray-200);
+  padding:1.5rem 1.2rem 1.2rem;
+}
+.profile-top{display:flex;align-items:center;gap:1.2rem;margin-bottom:1rem}
+.profile-avatar-ring{
+  width:80px;height:80px;border-radius:50%;
+  padding:2px;background:var(--grad-story);flex-shrink:0;
+}
+.profile-avatar{
+  width:100%;height:100%;border-radius:50%;
+  background:var(--gray-200);border:2px solid var(--white);
+  display:flex;align-items:center;justify-content:center;font-size:2rem;
+}
+.profile-stats{display:flex;gap:1.5rem;flex:1;justify-content:center}
+.profile-stat{display:flex;flex-direction:column;align-items:center}
+.profile-stat-num{font-size:1.05rem;font-weight:700}
+.profile-stat-label{font-size:.72rem;color:var(--gray-500)}
+.profile-name{font-weight:700;font-size:.95rem}
+.profile-bio{font-size:.82rem;color:var(--gray-600);line-height:1.4;margin-top:.2rem}
+.profile-actions{display:flex;gap:.6rem;margin-top:1rem}
+.profile-btn{
+  flex:1;padding:.55rem;border-radius:var(--radius-sm);
+  font-size:.83rem;font-weight:600;text-align:center;
+  background:var(--gray-100);color:var(--gray-800);
+  border:1.5px solid var(--gray-200);transition:background .15s;
+}
+.profile-btn:hover{background:var(--gray-200)}
+.profile-btn.danger{color:var(--ig-red);border-color:rgba(237,73,86,.3);background:rgba(237,73,86,.05)}
+
+.profile-grid-tab{
+  display:flex;border-bottom:1px solid var(--gray-200);margin:0;
+}
+.pgrid-tab{
+  flex:1;padding:.75rem;text-align:center;font-size:.8rem;font-weight:600;
+  color:var(--gray-400);border-bottom:2px solid transparent;
+  transition:all .15s;
+}
+.pgrid-tab.active{color:var(--gray-900);border-bottom-color:var(--gray-900)}
+
+.saved-prompts-list{padding:1rem}
+.saved-prompt-item{
+  background:var(--white);border:1.5px solid var(--gray-200);
+  border-radius:var(--radius-md);padding:1rem;margin-bottom:.7rem;
+  cursor:pointer;transition:all .15s;
+}
+.saved-prompt-item:hover{border-color:var(--gray-300);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.saved-prompt-text{font-size:.83rem;line-height:1.5;color:var(--gray-700);margin-bottom:.5rem}
+.saved-prompt-meta{display:flex;align-items:center;justify-content:space-between}
+.saved-prompt-time{font-size:.72rem;color:var(--gray-400)}
+.saved-prompt-del{font-size:.75rem;color:var(--ig-red);font-weight:600}
+
+/* ====== TOAST ====== */
+#toast{
+  position:fixed;bottom:calc(var(--bottom-h) + 1rem);left:50%;
+  transform:translateX(-50%) translateY(8px);
+  background:var(--gray-900);color:var(--white);
+  font-size:.82rem;font-weight:600;
+  padding:.6rem 1.3rem;border-radius:50px;
+  z-index:9999;opacity:0;transition:all .25s;pointer-events:none;
+  white-space:nowrap;box-shadow:var(--shadow-lg);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ====== FAB ====== */
+.fab{
+  position:fixed;bottom:calc(var(--bottom-h) + 1rem);right:1rem;z-index:300;
+  width:52px;height:52px;border-radius:50%;
+  background:var(--grad-btn);
+  color:var(--white);font-size:1.4rem;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(131,58,180,.4);
+  transition:all .2s;
+}
+.fab:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(131,58,180,.5)}
+.fab:active{transform:scale(.95)}
+
+/* ====== LIKE ANIMATION ====== */
+.heart-float{
+  position:fixed;pointer-events:none;z-index:9998;
+  font-size:4rem;animation:heartFly 1s ease forwards;
+}
+@keyframes heartFly{0%{opacity:1;transform:translateY(0) scale(.8)}100%{opacity:0;transform:translateY(-120px) scale(1.5)}}
+
+/* ====== UTILS ====== */
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ===== AUTH SCREEN ===== -->
+<div id="auth-screen">
+  <div class="auth-logo">AI Visual Studio Pro</div>
+  <div class="auth-tagline">AI Visual Content Creator</div>
+
+  <div class="auth-card">
+    <div style="text-align:center;margin-bottom:.5rem">
+      <div style="font-size:.82rem;color:var(--gray-500);line-height:1.5">
+        Enter your license key to unlock<br>500+ modular prompt building blocks
+      </div>
+    </div>
+
+    <input type="text" id="license-input" class="auth-input"
+      placeholder="Your Gumroad license key"
+      autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+
+    <div class="auth-error" id="auth-error">⚠️ Invalid license key. Please check your Gumroad purchase confirmation email.</div>
+    <div class="auth-success" id="auth-success">✓ Activating your license...</div>
+
+    <button class="auth-btn" id="btn-activate" onclick="activateLicense()">
+      Activate License Key
+    </button>
+
+    <div class="auth-divider">OR</div>
+
+    <div class="auth-note">
+      Don't have a license?<br>
+      <a href="https://gumroad.com" target="_blank">Purchase on Gumroad →</a>
+    </div>
+
+    <div class="auth-note" style="margin-top:.5rem;font-size:.72rem">
+      Each license key activates on one device only.<br>Keys cannot be shared or reused.
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app-shell">
+  <!-- TOP NAV -->
+  <nav class="top-nav">
+    <div class="nav-logo">PromptForge</div>
+    <div class="nav-icons">
+      <button class="nav-icon-btn" onclick="openBuilder()" title="Create Prompt">
+        ➕
+      </button>
+      <button class="nav-icon-btn" onclick="showToast('💬 Community coming soon!')">
+        💬
+      </button>
+      <button class="nav-icon-btn" id="nav-notif-btn" onclick="showTab('profile')" style="position:relative">
+        ♡
+      </button>
+    </div>
+  </nav>
+
+  <!-- FEED TAB -->
+  <div id="tab-feed">
+    <!-- Stories -->
+    <div class="stories-row" id="stories-row"></div>
+    <!-- Posts -->
+    <div class="feed" id="feed-posts"></div>
+  </div>
+
+  <!-- EXPLORE TAB -->
+  <div id="tab-explore">
+    <div class="search-bar-wrap">
+      <div class="search-bar-inner">
+        <span>🔍</span>
+        <input type="text" placeholder="Search prompts, styles, moods..." id="explore-search" oninput="filterExplore()">
+      </div>
+    </div>
+    <div class="explore-grid" id="explore-grid"></div>
+  </div>
+
+  <!-- RANDOM TAB -->
+  <div id="tab-random">
+    <div class="random-hero">
+      <h2>Random Prompt Generator</h2>
+      <p>Instantly generate unique prompts from 500+ building blocks. Mix unexpected styles, moods, and settings.</p>
+      <button class="btn-generate-random" onclick="generateRandom()">✨ Generate Prompt</button>
+    </div>
+
+    <div style="padding:0 1rem .3rem;font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--gray-600)">FORMULA</div>
+    <div class="formula-pills">
+      <button class="formula-pill active" onclick="selectFormula(this,'basic')">Basic</button>
+      <button class="formula-pill" onclick="selectFormula(this,'advanced')">Advanced</button>
+      <button class="formula-pill" onclick="selectFormula(this,'cinematic')">Cinematic</button>
+      <button class="formula-pill" onclick="selectFormula(this,'writing')">Writing / Story</button>
+      <button class="formula-pill" onclick="selectFormula(this,'video')">Video Scene</button>
+    </div>
+
+    <div class="random-result-card" id="random-result-card">
+      <div class="random-result-label">Generated Prompt</div>
+      <div class="random-result-text" id="random-result-text"></div>
+      <div class="random-result-parts" id="random-result-parts"></div>
+      <div class="random-result-actions">
+        <button class="modal-btn modal-btn-primary" style="font-size:.78rem" onclick="copyRandom()">Copy</button>
+        <button class="modal-btn modal-btn-secondary" style="font-size:.78rem" onclick="saveRandom()">Save</button>
+        <button class="modal-btn modal-btn-secondary" style="font-size:.78rem" onclick="generateRandom()">New →</button>
+      </div>
+    </div>
+
+    <div style="padding:1rem 1rem 0;font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--gray-600)">RECENT RANDOM</div>
+    <div id="random-history" style="padding:.5rem 1rem"></div>
+  </div>
+
+  <!-- SAVED TAB -->
+  <div id="tab-saved">
+    <div style="padding:1rem 1.2rem .5rem">
+      <div style="font-size:1rem;font-weight:700">Saved Prompts</div>
+      <div style="font-size:.78rem;color:var(--gray-400);margin-top:.2rem">Your personal collection</div>
+    </div>
+    <div class="saved-prompts-list" id="saved-prompts-list">
+      <div class="empty-state">
+        <div class="empty-state-icon">🔖</div>
+        <h3>No saved prompts yet</h3>
+        <p>Build or generate a prompt and save it to your collection.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE TAB -->
+  <div id="tab-profile">
+    <div class="profile-header">
+      <div class="profile-top">
+        <div class="profile-avatar-ring">
+          <div class="profile-avatar">✦</div>
+        </div>
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <div class="profile-stat-num" id="stat-created">0</div>
+            <div class="profile-stat-label">Created</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-num" id="stat-saved">0</div>
+            <div class="profile-stat-label">Saved</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-num" id="stat-copied">0</div>
+            <div class="profile-stat-label">Copied</div>
+          </div>
+        </div>
+      </div>
+      <div class="profile-name" id="profile-name">AI Visual Studio Pro User</div>
+      <div class="profile-bio">Licensed creator · AI Visual Prompt Builder</div>
+      <div style="font-size:.75rem;color:var(--gray-400);margin-top:.3rem" id="profile-key-display"></div>
+      <div class="profile-actions">
+        <button class="profile-btn" onclick="exportSaved()">Export Prompts</button>
+        <button class="profile-btn danger" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+
+    <div style="padding:1rem 1.2rem .5rem">
+      <div style="font-size:.88rem;font-weight:600;color:var(--gray-600)">Your Saved Prompts</div>
+    </div>
+    <div class="saved-prompts-list" id="profile-saved-list"></div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="openBuilder()" id="fab-btn">✦</button>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="bottom-tab active" id="btab-feed" onclick="showTab('feed')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="bottom-tab" id="btab-explore" onclick="showTab('explore')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Explore</span>
+    </button>
+    <button class="bottom-tab" id="btab-random" onclick="showTab('random')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <span>Random</span>
+    </button>
+    <button class="bottom-tab" id="btab-saved" onclick="showTab('saved')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+      <span>Saved</span>
+    </button>
+    <button class="bottom-tab" id="btab-profile" onclick="showTab('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ===== BUILDER MODAL ===== -->
+<div class="modal-overlay" id="builder-modal" onclick="handleModalClick(event)">
+  <div class="modal-sheet" id="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">✦ Build Your Prompt</div>
+      <button class="modal-close" onclick="closeBuilder()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Output -->
+      <div class="prompt-output-box" id="builder-output">
+        <span style="color:var(--gray-400);font-style:italic">Select building blocks below to craft your prompt...</span>
+        <span class="prompt-char-count" id="char-count"></span>
+      </div>
+      <div class="selected-chips" id="selected-chips"></div>
+
+      <!-- Action buttons -->
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-primary" onclick="copyBuilderPrompt()">Copy Prompt</button>
+        <button class="modal-btn modal-btn-secondary" onclick="saveBuilderPrompt()">Save</button>
+        <button class="modal-btn modal-btn-secondary" onclick="autoFill()">Auto-Fill</button>
+        <button class="modal-btn modal-btn-secondary" onclick="clearBuilder()" style="flex:none;padding:.7rem .9rem;color:var(--ig-red)">✕</button>
+      </div>
+
+      <!-- Categories -->
+      <div id="builder-cats"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   SECURITY LAYER
+   ============================================================ */
+
+// -- DevTools detection --
+(function(){
+  let devOpen = false;
+  const threshold = 160;
+  function check(){
+    const w = window.outerWidth - window.innerWidth > threshold;
+    const h = window.outerHeight - window.innerHeight > threshold;
+    if(w || h){
+      if(!devOpen){ devOpen=true; document.body.classList.add('devtools-open'); }
+    } else {
+      if(devOpen){ devOpen=false; document.body.classList.remove('devtools-open'); }
+    }
+  }
+  setInterval(check,800);
+  // Debugger trap
+  setInterval(function(){
+    const t=new Date();
+    debugger;
+    if(new Date()-t>100){ document.body.classList.add('devtools-open'); }
+  },2000);
+})();
+
+// -- Disable right-click --
+document.addEventListener('contextmenu',e=>e.preventDefault());
+
+// -- Disable F12 / Ctrl+Shift+I / Ctrl+U --
+document.addEventListener('keydown',e=>{
+  if(e.key==='F12'||
+    (e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||
+    (e.ctrlKey&&e.key==='U')||
+    (e.ctrlKey&&e.key==='S')){
+    e.preventDefault();
+    return false;
+  }
+});
+
+// -- Session integrity check --
+// We store a fingerprint hash in localStorage and verify it matches
+// the current device on every load. If it doesn't match, force re-auth.
+async function getFingerprint(){
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.textBaseline='top';ctx.font='14px Arial';
+  ctx.fillText('AI Visual Studio Pro🔒',2,2);
+  const canvasData = canvas.toDataURL();
+
+  const raw = [
+    navigator.userAgent,
+    navigator.language,
+    screen.colorDepth,
+    screen.width+'x'+screen.height,
+    new Date().getTimezoneOffset(),
+    navigator.hardwareConcurrency||0,
+    navigator.platform||'',
+    canvasData.slice(-80)
+  ].join('|');
+
+  // Simple hash
+  let hash=0;
+  for(let i=0;i<raw.length;i++){
+    hash=((hash<<5)-hash)+raw.charCodeAt(i);
+    hash|=0;
+  }
+  return Math.abs(hash).toString(36);
+}
+
+/* ============================================================
+   LICENSE VALIDATION
+   Replace PRODUCT_PERMALINK with your actual Gumroad permalink
+   ============================================================ */
+const PRODUCT_PERMALINK = 'AIVisualStudioPro'; // ← CHANGE THIS to your Gumroad product slug
+const LS_KEY = '__pf_session';
+const LS_STATS = '__pf_stats';
+const LS_SAVED = '__pf_saved';
+
+// Obfuscate storage key so it's not obvious
+function storeSession(data){ try{ localStorage.setItem(LS_KEY, btoa(JSON.stringify(data))); }catch(e){} }
+function loadSession(){ try{ const d=localStorage.getItem(LS_KEY); return d?JSON.parse(atob(d)):null; }catch(e){ return null; } }
+function clearSession(){ localStorage.removeItem(LS_KEY); }
+
+async function activateLicense(){
+  const key = document.getElementById('license-input').value.trim();
+  const btn = document.getElementById('btn-activate');
+  const err = document.getElementById('auth-error');
+  const succ = document.getElementById('auth-success');
+
+  err.classList.remove('show');
+  succ.classList.remove('show');
+
+  if(!key||key.length<6){
+    err.textContent='⚠️ Please enter your license key.';
+    err.classList.add('show'); return;
+  }
+
+  btn.disabled=true;
+  btn.innerHTML='<span class="auth-spinner"></span>Verifying...';
+
+  try{
+    const fp = await getFingerprint();
+
+    // Call Gumroad license verification
+    // increment_uses_count: true → burns the license on first use
+    const res = await fetch('https://api.gumroad.com/v2/licenses/verify',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body: new URLSearchParams({
+        product_permalink: PRODUCT_PERMALINK,
+        license_key: key,
+        increment_uses_count: 'true'
+      })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+      // Check uses — Gumroad increments on our call, so if uses > 1 it was already used
+      const uses = data.purchase?.uses ?? 1;
+      const maxUses = 1; // One activation only
+      if(uses > maxUses){
+        throw new Error('ALREADY_USED');
+      }
+
+      // Store session with fingerprint
+      storeSession({ key, fp, activatedAt: Date.now(), purchaserId: data.purchase?.email||'', uses });
+      succ.classList.add('show');
+      setTimeout(()=>{ bootApp(key,fp); },900);
+
+    } else {
+      throw new Error(data.message||'INVALID');
+    }
+  } catch(ex){
+    btn.disabled=false;
+    btn.textContent='Activate License Key';
+    if(ex.message==='ALREADY_USED'){
+      err.textContent='🔒 This license key has already been activated on another device. Each key is valid for one device only. Contact support if you believe this is an error.';
+    } else if(ex.message==='Failed to fetch'){
+      // Offline fallback — validate locally if already stored
+      const sess = loadSession();
+      if(sess&&sess.key===key){
+        const fp = await getFingerprint();
+        if(sess.fp===fp){ bootApp(key,fp); return; }
+      }
+      err.textContent='⚠️ Could not connect to verify your license. Please check your internet connection.';
+    } else {
+      err.textContent='⚠️ Invalid or expired license key. Please check your Gumroad purchase email.';
+    }
+    err.classList.add('show');
+  }
+}
+
+async function checkExistingSession(){
+  const sess = loadSession();
+  if(!sess) return false;
+  try{
+    const fp = await getFingerprint();
+    // Fingerprint must match — if device changed, force re-auth
+    if(sess.fp !== fp){
+      clearSession();
+      return false;
+    }
+    // Re-verify key is still valid with Gumroad (without incrementing)
+    const res = await fetch('https://api.gumroad.com/v2/licenses/verify',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body: new URLSearchParams({
+        product_permalink: PRODUCT_PERMALINK,
+        license_key: sess.key,
+        increment_uses_count: 'false'
+      })
+    });
+    const data = await res.json();
+    if(!data.success){ clearSession(); return false; }
+    return true;
+  } catch(e){
+    // Allow offline use if fingerprint matches
+    return true;
+  }
+}
+
+function bootApp(key,fp){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app-shell').style.display='block';
+  // Show key hint
+  const hint = key.slice(0,4)+'••••••••'+key.slice(-4);
+  document.getElementById('profile-key-display').textContent='License: '+hint;
+  showTab('feed');
+  buildFeed();
+  buildExplore();
+  loadStats();
+  renderSaved();
+}
+
+function signOut(){
+  if(confirm('Sign out? You will need your license key to sign back in.')){
+    clearSession();
+    location.reload();
+  }
+}
+
+// Boot sequence
+window.addEventListener('DOMContentLoaded',async()=>{
+  document.getElementById('license-input').addEventListener('keydown',e=>{
+    if(e.key==='Enter') activateLicense();
+  });
+  const valid = await checkExistingSession();
+  if(valid){
+    const sess = loadSession();
+    bootApp(sess.key, sess.fp);
+  }
+});
+
+/* ============================================================
+   DATA — 500+ Modular Prompts
+   ============================================================ */
+const DATA = {
+  camera:{
+    label:'Camera & Lens',icon:'📸',color:'#0095f6',bg:'rgba(0,149,246,.08)',
+    items:['Wide-angle shot','Ultra-wide-angle shot','Telephoto shot','Macro lens close-up','Fisheye lens distortion','Tilt-shift lens (miniature effect)','Anamorphic lens cinematic shot','35mm film lens style','50mm natural perspective','85mm portrait lens focus','135mm compressed depth shot','Over-the-shoulder shot','Point-of-view (POV) shot','Extreme close-up','Medium shot (waist-up framing)','Full-body shot','Bird\'s-eye view','Worm\'s-eye view','Three-quarter angle','Rule-of-thirds composition','Symmetrical framing','Off-center framing','Wide establishing shot','Drone aerial view','Top-down architectural shot','Panoramic wide sweep','Dutch angle (tilted frame)','Long tracking shot','Depth-of-field focus','Rack focus transition','Split-diopter','Extreme long shot','Intimate handheld perspective','Overhead God\'s-eye perspective','Heroic low-angle shot','Surveillance camera perspective','Dynamic action tracking shot','Steadicam smooth movement','Cinematic widescreen 2.35:1','IMAX ultra-high-resolution','Motion blur action framing','Freeze-frame still capture']
+  },
+  style:{
+    label:'Art Styles',icon:'🎨',color:'#833ab4',bg:'rgba(131,58,180,.08)',
+    items:['Renaissance painting','Baroque dramatic realism','Rococo ornate style','Gothic medieval style','Byzantine iconography','Neoclassical elegance','Romanticism','Realism (19th century)','Naturalism','Academic classicism','Impressionism','Post-Impressionism','Pointillism','Expressionism','Fauvism','Cubism','Futurism','Surrealism','Dadaism','Constructivism','Bauhaus minimal design','Abstract Expressionism','Japanese Ukiyo-e woodblock print','Chinese ink wash painting','Korean minhwa folk art','Indian Mughal miniature painting','Persian illuminated manuscript','African tribal patterns','Aztec glyph-inspired style','Mayan mural art','Aboriginal dot painting','Pop Art (Andy Warhol style)','Minimalism','Street art / graffiti','Photorealism','Op Art (optical illusions)','Brutalism','Cyberpunk neon aesthetic','Vaporwave retro-futurism','Synthwave 1980s style','Glitch art','Pixel art retro style','3D wireframe modeling','Low-poly style','Isometric vector style','Generative fractal art','Film noir aesthetic','Neo-noir modern noir','Comic book illustration','Manga black-and-white style','Anime cel-shading','Disney golden-age style','Pixar 3D animation look','Stop-motion claymation','Collage art','Drip painting (Pollock style)','Geometric abstraction','Bio-organic surreal style','Steampunk Victorian-futurism','Dieselpunk retro-industrial','Solarpunk eco-utopian','Afrofuturism','Fantasy illustration (D&D style)','Dark fantasy gothic art','High fantasy epic painting','Sci-fi futuristic realism','Cosmic horror surrealism','Mythological epic fresco','Watercolor wash style']
+  },
+  lighting:{
+    label:'Lighting',icon:'💡',color:'#fd8800',bg:'rgba(253,136,0,.08)',
+    items:['Golden hour sunlight','Sunrise glow','Sunset orange-pink light','Midday harsh sunlight','Overcast diffused light','Moonlight silver glow','Starlight illumination','Twilight blue hour','Aurora borealis glow','Lightning flash illumination','Candlelight warm glow','Lantern-lit atmosphere','Fireplace flicker','Soft studio light','Diffused softbox glow','Ring light circular reflection','Cloudy ambient diffusion','Glow from bioluminescent plants','Dreamlike misty glow','Magical soft shimmer','Chiaroscuro (light vs dark)','Spotlight single beam','Harsh neon glow','Backlit silhouette','Rim lighting outline','Side-lit dramatic shadow','Top-down harsh spotlight','Underlighting (horror style)','Shadow-cast Venetian blinds','Split lighting across face','Volumetric light beams','Fog-diffused beams','Stage spotlight','Concert strobe lights','Police siren red-blue flashes','Fireworks illumination','Disco ball reflections','Laser beam accents','Three-point cinematic lighting','Fluorescent office glow','Streetlamp yellow haze','Neon purple highlights','Neon pink and blue glow','LED strip light glow','Billboard glow illumination','Arcade retro neon glow','Ethereal glow from within','Magical rune illumination','Radiant aura glow','Electric plasma arcs','Glowing holographic projection','Crystal light refraction','Underwater caustic reflections','Sci-fi control panel glow','Radiating cosmic energy','Portal light spill','Forest dappled light through leaves','Volcano lava glow','Ice cave blue reflections','Sandstorm filtered glow']
+  },
+  mood:{
+    label:'Mood',icon:'🌙',color:'#ed4956',bg:'rgba(237,73,86,.08)',
+    items:['Ominous','Foreboding','Sinister','Melancholic','Haunting','Eerie','Cryptic','Shadowy','Macabre','Noir-inspired','Surreal','Fantastical','Dreamlike','Whimsical','Otherworldly','Ethereal','Hallucinatory','Mystical','Transcendent','Euphoric','Playful','Cheerful','Radiant','Hopeful','Serene','Blissful','Lighthearted','Vibrant','Jubilant','Chaotic','Explosive','Turbulent','Passionate','Intense','Thrilling','Urgent','Dynamic','Dramatic','Energetic','Peaceful','Still','Tranquil','Meditative','Zen-like','Harmonious','Gentle','Cinematic','Poetic','Abstract','Expressive','Symbolic','Painterly','Majestic','Monumental','Awe-inspiring','Grandiose','Heroic','Legendary','Timeless','Mythic','Vast','Cosmic']
+  },
+  environment:{
+    label:'Environments',icon:'🌍',color:'#44c654',bg:'rgba(68,198,84,.08)',
+    items:['Medieval castle','Gothic cathedral interior','Ancient Roman forum','Egyptian desert pyramid site','Greek amphitheater ruins','Mayan jungle temple','Aztec ceremonial plaza','Byzantine palace','Viking longhouse village','Stonehenge-style megalith circle','Bustling metropolitan downtown','Skyscraper rooftop at night','Abandoned subway station','Neon-drenched cyber city','Graffiti-filled alleyway','Crowded marketplace bazaar','Luxury penthouse suite','Train station terminal','Industrial warehouse district','Seaside fishing village','Futuristic megacity skyline','Floating sky city','Underground cybernetic bunker','Alien desert outpost','Space colony habitat dome','Orbital space station','Terraforming Mars colony','Neon holographic district','Time-travel portal chamber','AI control hub','Vast desert wasteland','Lush tropical jungle','Snow-capped mountain range','Volcanic lava plains','Crystal-clear lake shore','Hidden forest glade','Rolling green hills','Windswept coastal cliffs','Arctic tundra expanse','Endless sunflower fields','Coral reef ecosystem','Underwater ruins','Deep-sea trench','Sunken pirate ship','Bioluminescent kelp forest','Dragon\'s lair cavern','Enchanted fairy grove','Floating crystal islands','Ancient library of spells','Celestial palace in the sky','Dark cursed forest','Elven treetop city','Cosmic battlefield of gods','Nuclear wasteland','Deserted ghost town','Crumbling skyscraper ruins','Overgrown urban jungle','Underground fallout shelter','Flooded post-apocalyptic city','Toxic wasteland swamp']
+  },
+  character:{
+    label:'Characters',icon:'⚔️',color:'#FFCB2F',bg:'rgba(255,203,47,.1)',
+    items:['Gothic attire with lace and velvet','Steampunk outfit with brass gadgets','Tribal ceremonial garb','Futuristic exo-armor','Cyberpunk streetwear','Samurai armor with modern twist','Medieval knight\'s plate armor','Victorian-era dress','Post-apocalyptic scavenger rags','Elegant high-fashion couture','Heroic warrior','Wise scholar','Wandering nomad','Mysterious assassin','Enigmatic oracle','Fearless explorer','AI humanoid being','Rebel freedom fighter','Noble ruler or monarch','Shamanic mystic','Cybernetic enhanced soldier','AI android with human features','Space pilot in flight suit','Alien ambassador','Time traveler','Virtual reality hacker','Mecha pilot','Holographic projection being','Galactic bounty hunter','Bioengineered superhuman','Elven archer','Dwarven blacksmith','Orc warrior','Dragon rider','Enchanted sorceress','Dark necromancer','Angelic guardian','Demon overlord','Shapeshifter','Mythical beast hybrid','Abstract faceless figure','Living statue of marble','Shadowy silhouette','Crystal-bodied entity','Fire-wreathed figure','Cosmic traveler']
+  },
+  extras:{
+    label:'Extra Details',icon:'✨',color:'#c13584',bg:'rgba(193,53,132,.08)',
+    items:['Grainy film texture','Smooth polished surface','Rough stone-like texture','Glitchy digital distortion','Painterly brushstroke finish','Oil-painted texture','Watercolor wash effect','Pixelated retro style','Marble-sculpted finish','Metallic sheen','Fabric-like woven surface','Weathered and cracked','Organic flowing texture','Iridescent shimmer','Transparent glass-like','Epic and grand','Intimate and personal','Nostalgic and sentimental','Dark and brooding','Lighthearted and fun','Enigmatic and puzzling','Poetic and lyrical','Cinematic and sweeping','Minimalist and clean','Surreal and disorienting','Dynamic and fast-paced','Fluid and flowing','Frozen in time','Explosive energy','Rhythmic and pulsing','Chaotic spiraling motion','Gravity-defying','Dreamlike slow-motion','Shattered and fragmented','Glowing with kinetic force']
+  }
+};
+
+const FORMULAS = {
+  basic:['character','style','lighting','mood'],
+  advanced:['camera','character','environment','style','lighting','mood','extras'],
+  cinematic:['camera','environment','lighting','mood','extras'],
+  writing:['character','environment','mood','extras'],
+  video:['camera','character','environment','lighting','mood']
+};
+
+const CAT_GRADIENTS = {
+  camera:'linear-gradient(135deg,#2193b0,#6dd5ed)',
+  style:'linear-gradient(135deg,#833ab4,#fd1d1d)',
+  lighting:'linear-gradient(135deg,#f7971e,#ffd200)',
+  mood:'linear-gradient(135deg,#ed4956,#ff6b6b)',
+  environment:'linear-gradient(135deg,#11998e,#38ef7d)',
+  character:'linear-gradient(135deg,#f7971e,#FFCB2F)',
+  extras:'linear-gradient(135deg,#c13584,#e1306c)'
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let selected = {camera:[],style:[],lighting:[],mood:[],environment:[],character:[],extras:[]};
+let currentTab = 'feed';
+let currentFormula = 'basic';
+let lastRandomPrompt = '';
+let lastRandomParts = {};
+let randomHistory = [];
+let stats = {created:0,saved:0,copied:0};
+let savedPrompts = [];
+
+/* ============================================================
+   STATS & SAVED
+   ============================================================ */
+function loadStats(){
+  try{
+    const s=localStorage.getItem(LS_STATS);
+    if(s) stats=JSON.parse(s);
+    const sv=localStorage.getItem(LS_SAVED);
+    if(sv) savedPrompts=JSON.parse(sv);
+  }catch(e){}
+  updateStats();
+}
+function saveStats(){ try{ localStorage.setItem(LS_STATS,JSON.stringify(stats)); }catch(e){} }
+function updateStats(){
+  document.getElementById('stat-created').textContent=stats.created;
+  document.getElementById('stat-saved').textContent=savedPrompts.length;
+  document.getElementById('stat-copied').textContent=stats.copied;
+}
+function saveToDB(){ try{ localStorage.setItem(LS_SAVED,JSON.stringify(savedPrompts)); }catch(e){} }
+
+/* ============================================================
+   TABS
+   ============================================================ */
+function showTab(tab){
+  ['feed','explore','random','saved','profile'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display = t===tab?'block':'none';
+    document.getElementById('btab-'+t).classList.toggle('active',t===tab);
+  });
+  document.getElementById('fab-btn').style.display = tab==='profile'?'none':'flex';
+  currentTab=tab;
+  if(tab==='saved') renderSaved();
+  if(tab==='profile'){ renderProfileSaved(); updateStats(); }
+}
+
+/* ============================================================
+   FEED
+   ============================================================ */
+const FEED_ITEMS = [
+  {cat:'camera',label:'Ultra-wide rooftop shot, drone view of a neon-drenched cyber city at night',emoji:'📸'},
+  {cat:'style',label:'Renaissance portrait meets glitch art — golden hour surrealism',emoji:'🎨'},
+  {cat:'lighting',label:'Chiaroscuro meets neon pink: split-lit sorceress in a volcanic lair',emoji:'💡'},
+  {cat:'mood',label:'Ethereal & majestic: cosmic battlefield of gods with volumetric beams',emoji:'🌙'},
+  {cat:'environment',label:'Underwater ruins explored by a wandering nomad in tribal garb',emoji:'🌍'},
+  {cat:'character',label:'Cybernetic bounty hunter in post-apocalyptic scavenger rags',emoji:'⚔️'},
+  {cat:'extras',label:'Iridescent shimmer + dreamlike slow-motion in an enchanted fairy grove',emoji:'✨'},
+  {cat:'style',label:'Vaporwave retro-futurism: floating crystal islands under arcade neon glow',emoji:'🎨'},
+];
+
+const STORY_CATS = [
+  {label:'Camera',icon:'📸',cat:'camera',seen:false},
+  {label:'Styles',icon:'🎨',cat:'style',seen:false},
+  {label:'Lighting',icon:'💡',cat:'lighting',seen:true},
+  {label:'Mood',icon:'🌙',cat:'mood',seen:false},
+  {label:'Places',icon:'🌍',cat:'environment',seen:false},
+  {label:'Chars',icon:'⚔️',cat:'character',seen:true},
+  {label:'Extras',icon:'✨',cat:'extras',seen:false},
+];
+
+function buildFeed(){
+  // Stories
+  const sr = document.getElementById('stories-row');
+  sr.innerHTML = STORY_CATS.map(s=>`
+    <div class="story-item" onclick="openBuilderCat('${s.cat}')">
+      <div class="story-ring ${s.seen?'seen':''}">
+        <div class="story-avatar">${s.icon}</div>
+      </div>
+      <div class="story-label">${s.label}</div>
+    </div>
+  `).join('');
+
+  // Posts
+  const fp = document.getElementById('feed-posts');
+  fp.innerHTML = FEED_ITEMS.map((item,i)=>{
+    const d = DATA[item.cat];
+    const randomSample = getRandomItems(d.items,3);
+    return `
+    <div class="post-card">
+      <div class="post-header">
+        <div class="post-avatar" style="background:${CAT_GRADIENTS[item.cat]};color:#fff;font-size:1.1rem">${item.emoji}</div>
+        <div>
+          <div class="post-user">${d.label}</div>
+          <div class="post-category">${randomSample[0]}</div>
+        </div>
+        <span class="post-more">···</span>
+      </div>
+      <div class="post-media" style="background:${CAT_GRADIENTS[item.cat]}" ondblclick="doLike(this,${i})">
+        <div class="post-media-gradient">
+          <div class="post-media-label">${item.label}</div>
+          <div class="post-media-sub">${d.label}</div>
+        </div>
+      </div>
+      <div class="post-actions">
+        <button class="post-action-btn" onclick="doLike(this,${i})">♡</button>
+        <button class="post-action-btn" onclick="openBuilder()">💬</button>
+        <button class="post-action-btn" onclick="sharePost(${i})">➤</button>
+        <button class="post-action-btn post-save-btn" onclick="savePost(${i},'${item.label.replace(/'/g,"\\'")}')">🔖</button>
+      </div>
+      <div class="post-likes" id="likes-${i}">${Math.floor(Math.random()*800)+120} likes</div>
+      <div class="post-caption"><strong>${d.label}</strong> ${item.label} <span class="tag">#promptforge</span> <span class="tag">#aiart</span> <span class="tag">#${item.cat}</span></div>
+    </div>
+    `;
+  }).join('');
+}
+
+let likedPosts = {};
+function doLike(el, i){
+  if(likedPosts[i]) return;
+  likedPosts[i]=true;
+  const likesEl = document.getElementById('likes-'+i);
+  if(likesEl){
+    const cur = parseInt(likesEl.textContent);
+    likesEl.textContent = (cur+1)+' likes';
+  }
+  // Float heart
+  const heart = document.createElement('div');
+  heart.className='heart-float';
+  heart.textContent='❤️';
+  heart.style.cssText=`left:${window.innerWidth/2-20}px;top:${window.innerHeight/2-40}px`;
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(),1100);
+}
+
+function sharePost(i){
+  const item = FEED_ITEMS[i];
+  if(navigator.share){
+    navigator.share({title:'AIVisualStudioPro',text:item.label,url:window.location.href}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(item.label).then(()=>showToast('📋 Copied to clipboard!'));
+  }
+}
+
+function savePost(i,text){
+  addToSaved(text);
+  showToast('🔖 Saved to collection!');
+}
+
+/* ============================================================
+   EXPLORE
+   ============================================================ */
+function buildExplore(){
+  const grid = document.getElementById('explore-grid');
+  const allItems = [];
+  Object.keys(DATA).forEach(cat=>{
+    DATA[cat].items.forEach(item=>allItems.push({cat,item}));
+  });
+  // Shuffle
+  for(let i=allItems.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [allItems[i],allItems[j]]=[allItems[j],allItems[i]];
+  }
+  const show = allItems.slice(0,60);
+  grid.innerHTML = show.map(({cat,item})=>`
+    <div class="explore-cell" onclick="quickAddFromExplore('${cat}','${item.replace(/'/g,"\\'")}')">
+      <div class="explore-cell-inner" style="background:${CAT_GRADIENTS[cat]};color:transparent;font-size:2rem">${DATA[cat].icon}</div>
+      <div class="explore-cell-overlay">${item}</div>
+    </div>
+  `).join('');
+}
+
+function filterExplore(){
+  const q = document.getElementById('explore-search').value.toLowerCase();
+  const grid = document.getElementById('explore-grid');
+  if(!q){ buildExplore(); return; }
+  const results = [];
+  Object.keys(DATA).forEach(cat=>{
+    DATA[cat].items.filter(i=>i.toLowerCase().includes(q)).forEach(item=>results.push({cat,item}));
+  });
+  grid.innerHTML = results.slice(0,60).map(({cat,item})=>`
+    <div class="explore-cell" onclick="quickAddFromExplore('${cat}','${item.replace(/'/g,"\\'")}')">
+      <div class="explore-cell-inner" style="background:${CAT_GRADIENTS[cat]}">${DATA[cat].icon}</div>
+      <div class="explore-cell-overlay">${item}</div>
+    </div>
+  `).join('');
+}
+
+function quickAddFromExplore(cat,item){
+  if(!selected[cat].includes(item)){
+    selected[cat].push(item);
+    showToast(`Added: ${item.slice(0,30)}…`);
+  } else {
+    showToast('Already added! Open builder to view.');
+  }
+}
+
+/* ============================================================
+   BUILDER MODAL
+   ============================================================ */
+function openBuilder(){
+  document.getElementById('builder-modal').classList.add('open');
+  renderBuilderCats();
+  updateBuilderOutput();
+}
+
+function openBuilderCat(cat){
+  openBuilder();
+  // Scroll to that cat section
+  setTimeout(()=>{
+    const el = document.getElementById('bcat-'+cat);
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  },350);
+}
+
+function closeBuilder(){
+  document.getElementById('builder-modal').classList.remove('open');
+}
+
+function handleModalClick(e){
+  if(e.target===document.getElementById('builder-modal')) closeBuilder();
+}
+
+function renderBuilderCats(){
+  const wrap = document.getElementById('builder-cats');
+  wrap.innerHTML = Object.keys(DATA).map(cat=>{
+    const d = DATA[cat];
+    return `
+    <div class="cat-section" id="bcat-${cat}">
+      <div class="cat-section-header">
+        <span class="cat-section-icon">${d.icon}</span>
+        <span class="cat-section-title">${d.label}</span>
+        <span class="cat-section-count" id="bcat-count-${cat}">${selected[cat].length||''}</span>
+      </div>
+      <div class="cat-items-scroll" id="bcat-items-${cat}">
+        ${d.items.map(item=>`
+          <div class="item-pill ${selected[cat].includes(item)?'sel':''}"
+            style="${selected[cat].includes(item)?`--item-color:${d.color};--item-bg:${d.bg};`:''}"
+            onclick="toggleBuilderItem('${cat}','${item.replace(/'/g,"\\'")}')">
+            ${item}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    `;
+  }).join('');
+}
+
+function toggleBuilderItem(cat,item){
+  const idx = selected[cat].indexOf(item);
+  if(idx===-1) selected[cat].push(item);
+  else selected[cat].splice(idx,1);
+  // Update just this item pill
+  const d = DATA[cat];
+  const pills = document.querySelectorAll(`#bcat-items-${cat} .item-pill`);
+  pills.forEach(pill=>{
+    if(pill.textContent.trim()===item){
+      const isSel = selected[cat].includes(item);
+      pill.classList.toggle('sel',isSel);
+      pill.style.setProperty('--item-color',isSel?d.color:'');
+      pill.style.setProperty('--item-bg',isSel?d.bg:'');
+    }
+  });
+  const cnt = document.getElementById('bcat-count-'+cat);
+  if(cnt) cnt.textContent = selected[cat].length||'';
+  updateBuilderOutput();
+}
+
+function buildPromptString(){
+  const order=['camera','character','environment','style','lighting','mood','extras'];
+  const parts=[];
+  order.forEach(cat=>{ if(selected[cat].length) parts.push(...selected[cat]); });
+  return parts.join(', ');
+}
+
+function updateBuilderOutput(){
+  const prompt = buildPromptString();
+  const box = document.getElementById('builder-output');
+  const chips = document.getElementById('selected-chips');
+  const cc = document.getElementById('char-count');
+
+  if(!prompt){
+    box.innerHTML='<span style="color:var(--gray-400);font-style:italic">Select building blocks below to craft your prompt...</span>';
+    chips.innerHTML='';
+    cc.textContent='';
+    return;
+  }
+
+  box.textContent = prompt;
+  cc.textContent = prompt.length+' chars';
+
+  // Chips
+  const order=['camera','character','environment','style','lighting','mood','extras'];
+  chips.innerHTML='';
+  order.forEach(cat=>{
+    const d=DATA[cat];
+    selected[cat].forEach(item=>{
+      const c=document.createElement('div');
+      c.className='chip';
+      c.style.cssText=`color:${d.color};border-color:${d.color}55;background:${d.bg}`;
+      c.innerHTML=`${item} <span class="chip-x">×</span>`;
+      c.onclick=()=>toggleBuilderItem(cat,item);
+      chips.appendChild(c);
+    });
+  });
+}
+
+function clearBuilder(){
+  Object.keys(selected).forEach(k=>selected[k]=[]);
+  renderBuilderCats();
+  updateBuilderOutput();
+}
+
+function autoFill(){
+  clearBuilder();
+  FORMULAS.advanced.forEach(cat=>{
+    const items=DATA[cat].items;
+    selected[cat].push(items[Math.floor(Math.random()*items.length)]);
+  });
+  renderBuilderCats();
+  updateBuilderOutput();
+  stats.created++; saveStats(); updateStats();
+}
+
+function copyBuilderPrompt(){
+  const p=buildPromptString();
+  if(!p){showToast('Nothing to copy yet!');return;}
+  navigator.clipboard.writeText(p).then(()=>{
+    stats.copied++; saveStats(); updateStats();
+    showToast('✓ Prompt copied!');
+  });
+}
+
+function saveBuilderPrompt(){
+  const p=buildPromptString();
+  if(!p){showToast('Build a prompt first!');return;}
+  addToSaved(p);
+  showToast('🔖 Saved to collection!');
+}
+
+/* ============================================================
+   RANDOM
+   ============================================================ */
+function selectFormula(el,formula){
+  currentFormula=formula;
+  document.querySelectorAll('.formula-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function generateRandom(){
+  const cats=FORMULAS[currentFormula];
+  const parts={};
+  const pieces=[];
+  cats.forEach(cat=>{
+    const items=DATA[cat].items;
+    const pick=items[Math.floor(Math.random()*items.length)];
+    parts[cat]=pick; pieces.push(pick);
+  });
+  lastRandomPrompt=pieces.join(', ');
+  lastRandomParts=parts;
+
+  document.getElementById('random-result-text').textContent=lastRandomPrompt;
+
+  const partsWrap=document.getElementById('random-result-parts');
+  partsWrap.innerHTML=Object.keys(parts).map(cat=>{
+    const d=DATA[cat];
+    return `<span class="chip" style="color:${d.color};border-color:${d.color}55;background:${d.bg}">${d.icon} ${parts[cat]}</span>`;
+  }).join('');
+
+  document.getElementById('random-result-card').classList.add('show');
+
+  // Add to history
+  randomHistory.unshift({text:lastRandomPrompt,formula:currentFormula,ts:Date.now()});
+  if(randomHistory.length>5) randomHistory.pop();
+  renderRandomHistory();
+
+  stats.created++; saveStats(); updateStats();
+}
+
+function renderRandomHistory(){
+  const wrap=document.getElementById('random-history');
+  if(!randomHistory.length){wrap.innerHTML='';return;}
+  wrap.innerHTML=randomHistory.map((h,i)=>`
+    <div class="saved-prompt-item" onclick="copyHistoryItem(${i})">
+      <div class="saved-prompt-text">${h.text}</div>
+      <div class="saved-prompt-meta">
+        <div class="saved-prompt-time">${h.formula} · Tap to copy</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function copyHistoryItem(i){
+  navigator.clipboard.writeText(randomHistory[i].text).then(()=>{
+    stats.copied++; saveStats(); updateStats();
+    showToast('✓ Copied!');
+  });
+}
+
+function copyRandom(){
+  if(!lastRandomPrompt) return;
+  navigator.clipboard.writeText(lastRandomPrompt).then(()=>{
+    stats.copied++; saveStats(); updateStats();
+    showToast('✓ Prompt copied!');
+  });
+}
+
+function saveRandom(){
+  if(!lastRandomPrompt){showToast('Generate a prompt first!');return;}
+  addToSaved(lastRandomPrompt);
+  showToast('🔖 Saved!');
+}
+
+/* ============================================================
+   SAVED PROMPTS
+   ============================================================ */
+function addToSaved(text){
+  savedPrompts.unshift({text,ts:Date.now(),id:Date.now()});
+  saveToDB();
+  stats.saved++; saveStats(); updateStats();
+  renderSaved();
+  renderProfileSaved();
+}
+
+function renderSaved(){
+  const wrap=document.getElementById('saved-prompts-list');
+  if(!savedPrompts.length){
+    wrap.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🔖</div><h3>No saved prompts yet</h3><p>Build or generate a prompt and save it to your collection.</p></div>`;
+    return;
+  }
+  wrap.innerHTML=savedPrompts.map((p,i)=>`
+    <div class="saved-prompt-item">
+      <div class="saved-prompt-text">${p.text}</div>
+      <div class="saved-prompt-meta">
+        <div class="saved-prompt-time">${timeAgo(p.ts)}</div>
+        <div style="display:flex;gap:.8rem">
+          <button class="saved-prompt-del" onclick="copySaved(${i})" style="color:var(--ig-blue)">Copy</button>
+          <button class="saved-prompt-del" onclick="deleteSaved(${i})">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderProfileSaved(){
+  const wrap=document.getElementById('profile-saved-list');
+  if(!savedPrompts.length){
+    wrap.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🔖</div><h3>Nothing saved yet</h3></div>`;
+    return;
+  }
+  wrap.innerHTML = savedPrompts.map((p,i)=>`
+    <div class="saved-prompt-item">
+      <div class="saved-prompt-text">${p.text}</div>
+      <div class="saved-prompt-meta">
+        <div class="saved-prompt-time">${timeAgo(p.ts)}</div>
+        <button class="saved-prompt-del" onclick="copySaved(${i})" style="color:var(--ig-blue)">Copy</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function copySaved(i){
+  navigator.clipboard.writeText(savedPrompts[i].text).then(()=>{
+    stats.copied++; saveStats(); updateStats();
+    showToast('✓ Copied!');
+  });
+}
+
+function deleteSaved(i){
+  savedPrompts.splice(i,1);
+  saveToDB(); updateStats();
+  renderSaved(); renderProfileSaved();
+}
+
+function exportSaved(){
+  if(!savedPrompts.length){showToast('No saved prompts to export!');return;}
+  const text=savedPrompts.map((p,i)=>`${i+1}. ${p.text}`).join('\n\n');
+  const blob=new Blob([text],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='promptforge-saved.txt';
+  a.click();
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function getRandomItems(arr,n){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a.slice(0,n);
+}
+
+function timeAgo(ts){
+  const d=(Date.now()-ts)/1000;
+  if(d<60) return 'just now';
+  if(d<3600) return Math.floor(d/60)+'m ago';
+  if(d<86400) return Math.floor(d/3600)+'h ago';
+  return Math.floor(d/86400)+'d ago';
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+</script>
+</body>
+</html>
